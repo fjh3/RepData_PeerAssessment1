@@ -3,12 +3,7 @@ title: 'Reproducible Research: Peer Assessment 1'
 output:
   html_document:
     keep_md: yes
-  pdf_document: default
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 ```{r, include=FALSE}
 library(dplyr)
@@ -37,7 +32,7 @@ total_steps <- group_by(activ_data[complete.cases(activ_data),], date) %>% summa
 ```
 
 Create histogram of the total number of steps taken each day
-```{r}
+```{r, echo=FALSE}
 ggplot(total_steps, aes(x = total_steps)) +
   geom_histogram(color = 4, fill = "white", bins = 30) + 
   xlab('Total steps per day') +
@@ -52,10 +47,14 @@ cat(bold('The median total steps per day is:', median(total_steps$total_steps)))
 ```
 
 ## **What is the average daily activity pattern?**
+Create new data set
 ```{r}
 ts_data <- group_by(activ_data, interval) %>% 
    summarise(mean_steps = mean(steps, na.rm = T))
+```
 
+Plot the data
+```{r, echo=FALSE}
 plot(ts_data$interval, ts_data$mean_steps, type="l", col = "blue", xlab="Interval", ylab="Average Number of Steps",main="Activity by Interval")
 ```
 
@@ -70,7 +69,6 @@ cat("5-min interval with the maximum number of steps:", max_interval)
 
 Calculate and report the total number of missing values in the dataset 
 ```{r}
-
 cat('Number of NAs in steps:', sum(is.na(activ_data$steps)))
 
 cat('Number of NAs in date:', sum(is.na(activ_data$date)))
@@ -78,7 +76,8 @@ cat('Number of NAs in date:', sum(is.na(activ_data$date)))
 cat('Number of NA in inteval:', sum(is.na(activ_data$interval)))
 ```
 
-## **Impute mean for missing data (NA) & create new data set**
+The strategy used to account for missing data was to impute the mean for any NA.
+
 ```{r}
 activ_data$steps[is.na(activ_data$steps)] <- mean(activ_data$steps, na.rm = T)  
 cat('Number of NA in steps post imputation:', sum(is.na(activ_data$steps)))
@@ -91,7 +90,7 @@ new_total_steps <- group_by(activ_data[complete.cases(activ_data),], date) %>% s
 ```
 
 Plot the data
-```{r}
+```{r, echo=FALSE}
 ggplot(new_total_steps, aes(x = total_steps)) +
   geom_histogram(color = 4, fill = "white", bins = 30) + 
   xlab('Total steps per day') +
@@ -114,7 +113,7 @@ new_ts_data <- activ_data %>% group_by(weekday, interval) %>%
 ```
 
 Plot data
-```{r}
+```{r, echo=FALSE}
 xyplot(new_ts_data$mean_steps ~ new_ts_data$interval|new_ts_data$weekday, groups = new_ts_data$weekday, main="Activity by Day of the Week",xlab="5-Minute Interval", ylab="Average Number of Steps",layout=c(1,2), type="l", col=c("red","blue"))
 ```
 
