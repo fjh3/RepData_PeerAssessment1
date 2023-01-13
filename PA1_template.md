@@ -7,6 +7,8 @@ output:
 
 
 
+
+
 ## **Loading and preprocessing the data**
 
 Unzip and load data
@@ -30,6 +32,14 @@ total_steps <- group_by(activ_data[complete.cases(activ_data),], date) %>% summa
 ```
 
 Create histogram of the total number of steps taken each day
+
+```r
+ggplot(total_steps, aes(x = total_steps)) +
+  geom_histogram(color = 4, fill = "white", bins = 30) + 
+  xlab('Total steps per day') +
+  ylab('Frequency (count)') 
+```
+
 ![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
 ## **What is mean total number of steps taken per day?**
@@ -59,6 +69,11 @@ ts_data <- group_by(activ_data, interval) %>%
 ```
 
 Plot the data
+
+```r
+plot(ts_data$interval, ts_data$mean_steps, type="l", col = "blue", xlab="Interval", ylab="Average Number of Steps",main="Activity by Interval")
+```
+
 ![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 Calculate a 5-minute interval that, on average, contains the maximum number of steps
@@ -121,6 +136,14 @@ new_total_steps <- group_by(activ_data[complete.cases(activ_data),], date) %>% s
 ```
 
 Plot the data
+
+```r
+ggplot(new_total_steps, aes(x = total_steps)) +
+  geom_histogram(color = 4, fill = "white", bins = 30) + 
+  xlab('Total steps per day') +
+  ylab('Frequency (count)') 
+```
+
 ![](PA1_template_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
 
 ## **Are there differences in activity patterns between weekdays and weekends?**
@@ -146,6 +169,11 @@ new_ts_data <- activ_data %>% group_by(weekday, interval) %>%
 ```
 
 Plot data
+
+```r
+xyplot(new_ts_data$mean_steps ~ new_ts_data$interval|new_ts_data$weekday, groups = new_ts_data$weekday, main="Activity by Day of the Week",xlab="5-Minute Interval", ylab="Average Number of Steps",layout=c(1,2), type="l", col=c("red","blue"))
+```
+
 ![](PA1_template_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
 
 

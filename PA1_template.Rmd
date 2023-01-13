@@ -5,6 +5,10 @@ output:
     keep_md: yes
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
 ```{r, include=FALSE}
 library(dplyr)
 library(ggplot2)
@@ -32,7 +36,7 @@ total_steps <- group_by(activ_data[complete.cases(activ_data),], date) %>% summa
 ```
 
 Create histogram of the total number of steps taken each day
-```{r, echo=FALSE}
+```{r, echo=TRUE}
 ggplot(total_steps, aes(x = total_steps)) +
   geom_histogram(color = 4, fill = "white", bins = 30) + 
   xlab('Total steps per day') +
@@ -54,7 +58,7 @@ ts_data <- group_by(activ_data, interval) %>%
 ```
 
 Plot the data
-```{r, echo=FALSE}
+```{r, echo=TRUE}
 plot(ts_data$interval, ts_data$mean_steps, type="l", col = "blue", xlab="Interval", ylab="Average Number of Steps",main="Activity by Interval")
 ```
 
@@ -90,7 +94,7 @@ new_total_steps <- group_by(activ_data[complete.cases(activ_data),], date) %>% s
 ```
 
 Plot the data
-```{r, echo=FALSE}
+```{r, echo=TRUE}
 ggplot(new_total_steps, aes(x = total_steps)) +
   geom_histogram(color = 4, fill = "white", bins = 30) + 
   xlab('Total steps per day') +
@@ -113,7 +117,7 @@ new_ts_data <- activ_data %>% group_by(weekday, interval) %>%
 ```
 
 Plot data
-```{r, echo=FALSE}
+```{r, echo=TRUE}
 xyplot(new_ts_data$mean_steps ~ new_ts_data$interval|new_ts_data$weekday, groups = new_ts_data$weekday, main="Activity by Day of the Week",xlab="5-Minute Interval", ylab="Average Number of Steps",layout=c(1,2), type="l", col=c("red","blue"))
 ```
 
