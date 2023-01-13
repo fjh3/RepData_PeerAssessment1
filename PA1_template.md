@@ -1,12 +1,9 @@
 ---
 title: 'Reproducible Research: Peer Assessment 1'
-output:
+output: 
   html_document:
     keep_md: yes
-  pdf_document: default
 ---
-
-
 
 
 
@@ -33,14 +30,6 @@ total_steps <- group_by(activ_data[complete.cases(activ_data),], date) %>% summa
 ```
 
 Create histogram of the total number of steps taken each day
-
-```r
-ggplot(total_steps, aes(x = total_steps)) +
-  geom_histogram(color = 4, fill = "white", bins = 30) + 
-  xlab('Total steps per day') +
-  ylab('Frequency (count)') 
-```
-
 ![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
 ## **What is mean total number of steps taken per day?**
@@ -62,15 +51,15 @@ cat(bold('The median total steps per day is:', median(total_steps$total_steps)))
 ```
 
 ## **What is the average daily activity pattern?**
+Create new data set
 
 ```r
 ts_data <- group_by(activ_data, interval) %>% 
    summarise(mean_steps = mean(steps, na.rm = T))
-
-plot(ts_data$interval, ts_data$mean_steps, type="l", col = "blue", xlab="Interval", ylab="Average Number of Steps",main="Activity by Interval")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+Plot the data
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 Calculate a 5-minute interval that, on average, contains the maximum number of steps
 
@@ -112,7 +101,8 @@ cat('Number of NA in inteval:', sum(is.na(activ_data$interval)))
 ## Number of NA in inteval: 0
 ```
 
-## **Impute mean for missing data (NA) & create new data set**
+The strategy used to account for missing data was to impute the mean for any NA.
+
 
 ```r
 activ_data$steps[is.na(activ_data$steps)] <- mean(activ_data$steps, na.rm = T)  
@@ -131,15 +121,7 @@ new_total_steps <- group_by(activ_data[complete.cases(activ_data),], date) %>% s
 ```
 
 Plot the data
-
-```r
-ggplot(new_total_steps, aes(x = total_steps)) +
-  geom_histogram(color = 4, fill = "white", bins = 30) + 
-  xlab('Total steps per day') +
-  ylab('Frequency (count)') 
-```
-
-![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
 
 ## **Are there differences in activity patterns between weekdays and weekends?**
 
@@ -164,12 +146,7 @@ new_ts_data <- activ_data %>% group_by(weekday, interval) %>%
 ```
 
 Plot data
-
-```r
-xyplot(new_ts_data$mean_steps ~ new_ts_data$interval|new_ts_data$weekday, groups = new_ts_data$weekday, main="Activity by Day of the Week",xlab="5-Minute Interval", ylab="Average Number of Steps",layout=c(1,2), type="l", col=c("red","blue"))
-```
-
-![](PA1_template_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
 
 
 ```r
