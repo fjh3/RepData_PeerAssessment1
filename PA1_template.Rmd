@@ -1,25 +1,128 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
+title: 'Reproducible Research: Peer Assessment 1'
+output:
   html_document:
-    keep_md: true
+    keep_md: yes
+  pdf_document: default
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
-## Loading and preprocessing the data
+```{r, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(lattice)
+library(crayon)
+```
 
+## **Loading and preprocessing the data**
 
+Unzip and load data
+```{r}
+unzip(zipfile = 'activity.zip')
+activ_data <- read.csv('activity.csv')
+```
 
-## What is mean total number of steps taken per day?
+Process and transform data
+```{r}
+#format date var
+activ_data$date <- as.POSIXct(activ_data$date, format = '%Y-%m-%d')
+```
 
+Create new data frame grouped by total steps per day
+```{r}
+total_steps <- group_by(activ_data[complete.cases(activ_data),], date) %>% summarise(total_steps = sum(steps, na.rm = TRUE))
+```
 
+Create histogram of the total number of steps taken each day
+```{r}
+ggplot(total_steps, aes(x = total_steps)) +
+  geom_histogram(color = 4, fill = "white", bins = 30) + 
+  xlab('Total steps per day') +
+  ylab('Frequency (count)') 
+```
 
-## What is the average daily activity pattern?
+## **What is mean total number of steps taken per day?**
+```{r}
+cat(bold('The mean total steps per day is:', mean(total_steps$total_steps)))
 
+cat(bold('The median total steps per day is:', median(total_steps$total_steps)))
+```
 
+## **What is the average daily activity pattern?**
+```{r}
+ts_data <- group_by(activ_data, interval) %>% 
+   summarise(mean_steps = mean(steps, na.rm = T))
 
-## Imputing missing values
+plot(ts_data$interval, ts_data$mean_steps, type="l", col = "blue", xlab="Interval", ylab="Average Number of Steps",main="Activity by Interval")
+```
 
+Calculate a 5-minute interval that, on average, contains the maximum number of steps
+```{r}
+max_interval <- ts_data[which.max(ts_data$mean_steps),1]
+max_interval <- unlist(max_interval);
+cat("5-min interval with the maximum number of steps:", max_interval)
+```
 
+## **Imputing missing values**
 
-## Are there differences in activity patterns between weekdays and weekends?
+Calculate and report the total number of missing values in the dataset 
+```{r}
+
+cat('Number of NAs in steps:', sum(is.na(activ_data$steps)))
+
+cat('Number of NAs in date:', sum(is.na(activ_data$date)))
+
+cat('Number of NA in inteval:', sum(is.na(activ_data$interval)))
+```
+
+## **Impute mean for missing data (NA) & create new data set**
+```{r}
+activ_data$steps[is.na(activ_data$steps)] <- mean(activ_data$steps, na.rm = T)  
+cat('Number of NA in steps post imputation:', sum(is.na(activ_data$steps)))
+```
+
+Create histogram of the total number of steps taken each day after missing values are imputed
+
+```{r}
+new_total_steps <- group_by(activ_data[complete.cases(activ_data),], date) %>% summarise(total_steps = sum(steps, na.rm = TRUE))
+```
+
+Plot the data
+```{r}
+ggplot(new_total_steps, aes(x = total_steps)) +
+  geom_histogram(color = 4, fill = "white", bins = 30) + 
+  xlab('Total steps per day') +
+  ylab('Frequency (count)') 
+```
+
+## **Are there differences in activity patterns between weekdays and weekends?**
+
+Create new variable with two levels: weekday and weekend
+```{r}
+activ_data$date <- as.Date(activ_data$date)
+activ_data$weekday <- weekdays(activ_data$date)
+activ_data$weekday = ifelse(activ_data$weekday %in% c('Sunday', 'Saturday'), 'Weekend', 'Weekday')
+```
+
+Create new data frame grouped by total steps per day
+```{r}
+new_ts_data <- activ_data %>% group_by(weekday, interval) %>% 
+   summarise(mean_steps = mean(steps))
+```
+
+Plot data
+```{r}
+xyplot(new_ts_data$mean_steps ~ new_ts_data$interval|new_ts_data$weekday, groups = new_ts_data$weekday, main="Activity by Day of the Week",xlab="5-Minute Interval", ylab="Average Number of Steps",layout=c(1,2), type="l", col=c("red","blue"))
+```
+
+```{r}
+wk_grp_mean <- new_ts_data %>% group_by(new_ts_data$weekday) %>% summarise(across(mean_steps, mean, na.rm = TRUE))
+
+cat(bold('Activity Patterns for Weekends are higher than Weekdays.'))
+cat(bold('The mean total steps for weekdays is:', unlist(wk_grp_mean[1,2])))
+cat(bold('The mean total steps for weekend is:', unlist(wk_grp_mean[2,2])))
+
+```
